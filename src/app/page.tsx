@@ -234,7 +234,6 @@ export default function Home() {
               <SecretTimerScreen
                 visitorName={visitorData.greeting}
                 emoji={visitorData.emoji}
-                onBypass={() => setStage('hero')}
               />
             </motion.div>
           )}

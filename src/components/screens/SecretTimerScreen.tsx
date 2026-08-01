@@ -5,10 +5,9 @@ import { motion } from 'framer-motion';
 interface SecretTimerScreenProps {
   visitorName: string;
   emoji: string;
-  onBypass?: () => void;
 }
 
-export default function SecretTimerScreen({ visitorName, emoji, onBypass }: SecretTimerScreenProps) {
+export default function SecretTimerScreen({ visitorName, emoji }: SecretTimerScreenProps) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 0,
     hours: 0,
@@ -152,15 +151,6 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
               </div>
             ))}
           </div>
-
-          {onBypass && (
-            <button
-              onClick={onBypass}
-              style={{ background: 'transparent', border: 'none', color: 'rgba(248, 200, 220, 0.4)', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              (Prince Admin: Unlock Now)
-            </button>
-          )}
         </div>
       </motion.div>
     </div>
