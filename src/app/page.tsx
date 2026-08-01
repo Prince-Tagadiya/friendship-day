@@ -156,8 +156,7 @@ export default function Home() {
   const isAdminUser = visitorData.isAdmin;
 
   const showNotMe =
-    (stage === 'hero' || stage === 'letter' || stage === 'mobile-redirect' || stage === 'secret-timer' || stage === 'missed-window') &&
-    effectiveVisitor !== 'unknown';
+    stage === 'letter' && effectiveVisitor !== 'unknown';
 
   return (
     <LenisProvider>
