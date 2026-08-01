@@ -43,15 +43,21 @@ export default function Home() {
   const visitorData = VISITORS[effectiveVisitor];
   const letter = LETTERS[visitorData.letterId];
 
-  // ── Time window check ────────────────
+  // ── Time window check (August 2nd 12:00 AM to 1:00 AM unlock window) ──────
   const getTimeWindowState = useCallback((): 'before-12' | 'unlocked' | 'missed' => {
     if (overrideTimeMode) return overrideTimeMode;
-    const now = new Date();
-    const currentHour = now.getHours();
 
-    if (currentHour < 12) return 'before-12';
-    if (currentHour === 12) return 'unlocked';
-    return 'missed';
+    const now = new Date();
+    const targetStart = new Date('2026-08-02T00:00:00+05:30'); // Aug 2, 12:00 AM Midnight
+    const targetEnd = new Date('2026-08-02T01:00:00+05:30');   // Aug 2, 1:00 AM
+
+    if (now.getTime() < targetStart.getTime()) {
+      return 'before-12';
+    } else if (now.getTime() >= targetStart.getTime() && now.getTime() < targetEnd.getTime()) {
+      return 'unlocked'; // 12:00 AM to 1:00 AM window!
+    } else {
+      return 'missed'; // After 1:00 AM
+    }
   }, [overrideTimeMode]);
 
   // ── Stage resolution helper ──────────────────────────

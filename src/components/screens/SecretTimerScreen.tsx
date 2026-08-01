@@ -9,7 +9,8 @@ interface SecretTimerScreenProps {
 }
 
 export default function SecretTimerScreen({ visitorName, emoji, onBypass }: SecretTimerScreenProps) {
-  const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number }>({
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
+    days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
@@ -17,20 +18,17 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
 
   useEffect(() => {
     function calculateTime() {
+      // Target: August 2nd, 2026 at 00:00:00 (12:00 AM Midnight)
+      const target = new Date('2026-08-02T00:00:00+05:30');
       const now = new Date();
-      const target = new Date();
-      target.setHours(12, 0, 0, 0);
-
-      if (now.getTime() > target.getTime()) {
-        target.setDate(target.getDate() + 1);
-      }
 
       const diff = Math.max(0, target.getTime() - now.getTime());
-      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      setTimeLeft({ hours, minutes, seconds });
+      setTimeLeft({ days, hours, minutes, seconds });
     }
 
     calculateTime();
@@ -51,7 +49,6 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
         position: 'relative',
       }}
     >
-      {/* Container */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -90,7 +87,7 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
             I wrote this letter directly from my heart to thank you for being such an awesome part of my life and Creato4. Working, building, and celebrating together has been truly special.
           </p>
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(17px, 2.8vw, 21px)', lineHeight: 1.85, color: '#964B00', fontWeight: 600 }}>
-            But wait... your actual secret letter and personal memories unlock at 12:00 PM! 🤫👇
+            But wait... your actual secret letter and personal memories unlock on 2nd August at 12:00 AM! 🤫👇
           </p>
 
           <div style={{ marginTop: '32px', textAlign: 'right', fontFamily: "'Dancing Script', cursive", fontSize: '28px', color: '#A65B1A', fontWeight: 700 }}>
@@ -98,7 +95,7 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
           </div>
         </div>
 
-        {/* ── 12:00 PM Secret Timer & Prince Intelligence Card ── */}
+        {/* ── 2nd August 12:00 AM Secret Timer & Prince Intelligence Card ── */}
         <div
           className="glass-card"
           style={{
@@ -115,9 +112,16 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
             I know this is {visitorName}&apos;s device... 🤫
           </h3>
 
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', letterSpacing: '0.12em', color: 'rgba(212, 163, 115, 0.85)', textTransform: 'uppercase', marginBottom: '18px' }}>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', letterSpacing: '0.12em', color: 'rgba(212, 163, 115, 0.85)', textTransform: 'uppercase', marginBottom: '14px' }}>
             This is just Prince intelligence.
           </p>
+
+          {/* If this is not you message */}
+          <div style={{ background: 'rgba(255, 248, 242, 0.05)', border: '1px dashed rgba(248, 200, 220, 0.2)', borderRadius: '10px', padding: '10px 16px', marginBottom: '20px' }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', color: 'rgba(255, 248, 242, 0.75)' }}>
+              ⚠️ If this is not you, please meet Prince (Admin) to verify your device!
+            </p>
+          </div>
 
           {/* Exact Gujarati Quote */}
           <div style={{ background: 'rgba(192, 57, 43, 0.14)', border: '1px solid rgba(192, 57, 43, 0.4)', borderRadius: '12px', padding: '14px 20px', marginBottom: '24px' }}>
@@ -127,21 +131,22 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
           </div>
 
           <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(15px, 3vw, 19px)', color: 'rgba(255, 248, 242, 0.85)', marginBottom: '24px' }}>
-            🔒 All personal secrets revealing on 12:00 PM Friendship Day Special...
+            🔒 All personal secrets revealing on August 2nd at 12:00 AM (Friendship Day Special)...
           </p>
 
-          {/* Countdown Clock */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
+          {/* Live Countdown Clock */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
             {[
+              { label: 'DAYS', val: timeLeft.days },
               { label: 'HOURS', val: timeLeft.hours },
               { label: 'MINS', val: timeLeft.minutes },
               { label: 'SECS', val: timeLeft.seconds },
             ].map((item, idx) => (
-              <div key={idx} style={{ background: 'rgba(26, 10, 20, 0.85)', border: '1px solid rgba(248, 200, 220, 0.25)', borderRadius: '12px', padding: '10px 16px', minWidth: '70px' }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 600, color: '#D4A373', lineHeight: 1.1 }}>
+              <div key={idx} style={{ background: 'rgba(26, 10, 20, 0.85)', border: '1px solid rgba(248, 200, 220, 0.25)', borderRadius: '12px', padding: '10px 14px', minWidth: '65px' }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 600, color: '#D4A373', lineHeight: 1.1 }}>
                   {String(item.val).padStart(2, '0')}
                 </div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', letterSpacing: '0.15em', color: 'rgba(255, 255, 255, 0.4)', marginTop: '3px' }}>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', letterSpacing: '0.12em', color: 'rgba(255, 255, 255, 0.4)', marginTop: '3px' }}>
                   {item.label}
                 </div>
               </div>
