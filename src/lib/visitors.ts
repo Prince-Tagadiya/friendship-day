@@ -7,7 +7,7 @@ export interface VisitorEntry {
   deviceType: DeviceType;
 }
 
-// Known visitor IPs — server-side only. Never sent to client raw.
+// Known visitor IPs & IPv4/IPv6 subnets — server & client side matching
 export const VISITOR_IPS: Record<string, VisitorEntry> = {
   // ─── Khushi ───────────────────────────────────────────
   '42.104.239.1': { name: 'Khushi', deviceType: 'mobile' },          // SM-S721B Android
@@ -20,8 +20,19 @@ export const VISITOR_IPS: Record<string, VisitorEntry> = {
   '2409:40c1:401b:1ee5:510:51cd:645b:b2d0': { name: 'Rudra', deviceType: 'laptop' },  // Chrome on Windows
 
   // ─── Prince ───────────────────────────────────────────
-  '2405:201:201e:9158:1a4:2802:19ec:9bfe': { name: 'Prince', deviceType: 'laptop' }, // Chrome on Mac
+  '49.43.33.178': { name: 'Prince', deviceType: 'laptop' },                          // Chrome on Mac IPv4
+  '2405:201:201e:9158:1a4:2802:19ec:9bfe': { name: 'Prince', deviceType: 'laptop' }, // Chrome on Mac IPv6
 };
+
+// Known IPv6 & IPv4 Subnet Prefixes (handles ISP IP rotation)
+export const VISITOR_SUBNETS: { prefix: string; name: VisitorName; deviceType: DeviceType }[] = [
+  { prefix: '2405:201:', name: 'Prince', deviceType: 'laptop' },
+  { prefix: '49.43.', name: 'Prince', deviceType: 'laptop' },
+  { prefix: '2402:3a80:', name: 'Khushi', deviceType: 'laptop' },
+  { prefix: '42.104.', name: 'Khushi', deviceType: 'mobile' },
+  { prefix: '2401:4900:', name: 'Nisarg', deviceType: 'laptop' },
+  { prefix: '2409:40c1:', name: 'Rudra', deviceType: 'laptop' },
+];
 
 export const VISITORS: Record<VisitorName, Visitor> = {
   Khushi: {
@@ -65,15 +76,22 @@ export function getVisitorFromIP(ip: string): {
   visitor: VisitorName;
   deviceType: DeviceType;
 } {
-  // Direct match
-  const direct = VISITOR_IPS[ip];
+  const normalized = ip.toLowerCase().trim();
+
+  // 1. Exact match
+  const direct = VISITOR_IPS[normalized];
   if (direct) return { visitor: direct.name, deviceType: direct.deviceType };
 
-  // Normalized IPv6 lowercase match
-  const normalized = ip.toLowerCase().trim();
   for (const [knownIp, entry] of Object.entries(VISITOR_IPS)) {
     if (knownIp.toLowerCase() === normalized) {
       return { visitor: entry.name, deviceType: entry.deviceType };
+    }
+  }
+
+  // 2. Subnet / Prefix match (handles ISP dynamic IP rotation)
+  for (const sub of VISITOR_SUBNETS) {
+    if (normalized.startsWith(sub.prefix.toLowerCase())) {
+      return { visitor: sub.name, deviceType: sub.deviceType };
     }
   }
 

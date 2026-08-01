@@ -23,33 +23,35 @@ export function useVisitor(): UseVisitorReturn {
 
   useEffect(() => {
     async function detect() {
-      try {
-        // 1. Try server API route
-        const res = await fetch('/api/visitor', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.visitor) {
-            setVisitor(data.visitor as VisitorName);
-            setDeviceType(data.deviceType as DeviceType);
-            if (data.detectedIp) setDetectedIp(data.detectedIp);
-            setIsLoading(false);
-            return;
+      const isStaticHost = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+
+      // If NOT static host, try server API route first
+      if (!isStaticHost) {
+        try {
+          const res = await fetch('/api/visitor', { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.visitor && data.visitor !== 'unknown') {
+              setVisitor(data.visitor as VisitorName);
+              setDeviceType(data.deviceType as DeviceType);
+              if (data.detectedIp) setDetectedIp(data.detectedIp);
+              setIsLoading(false);
+              return;
+            }
           }
-        }
-      } catch {
-        // API route failed or static export
+        } catch {}
       }
 
-      // 2. Fallback for GitHub Pages static export: fetch public IP client-side
+      // Client-side public IP lookup (for GitHub Pages static export or when API route returns unknown)
       try {
-        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipRes = await fetch('https://api64.ipify.org?format=json');
         const ipData = await ipRes.json();
         const clientIp = ipData.ip;
         const result = getVisitorFromIP(clientIp);
 
         setVisitor(result.visitor);
         setDeviceType(result.deviceType);
-        if (result.visitor === 'Prince') setDetectedIp(clientIp);
+        setDetectedIp(clientIp);
       } catch {
         setVisitor('unknown');
         setDeviceType('unknown-device');
