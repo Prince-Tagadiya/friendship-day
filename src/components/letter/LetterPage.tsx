@@ -103,21 +103,23 @@ interface LetterPageProps {
   visitorName: string;
 }
 
-export default function LetterPage({ letter, visitorName }: LetterPageProps) {
+export default function LetterPage({ letter: initialLetter, visitorName }: LetterPageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const paragraphRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // State for scroll completion & Creato4 Group Letter Modal
+  // Current active letter (can switch to Creato4 group letter)
+  const [currentLetter, setCurrentLetter] = useState<LetterContent>(initialLetter);
   const [reachedBottom, setReachedBottom] = useState(false);
-  const [showGroupModal, setShowGroupModal] = useState(false);
-
-  const groupLetter = LETTERS.prince; // Common Creato4 Group Letter
 
   useEffect(() => {
-    paragraphRefs.current = paragraphRefs.current.slice(0, letter.lines.length + 10);
+    setCurrentLetter(initialLetter);
+    setReachedBottom(false);
+  }, [initialLetter]);
+
+  useEffect(() => {
+    paragraphRefs.current = paragraphRefs.current.slice(0, currentLetter.lines.length + 10);
 
     const ctx = gsap.context(() => {
-      // Animate text lines on scroll
       paragraphRefs.current.forEach((el, i) => {
         if (!el) return;
 
@@ -144,18 +146,8 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
           }
         );
       });
-
-      // Detect bottom scroll reach (at 90% scroll of container)
-      if (containerRef.current) {
-        ScrollTrigger.create({
-          trigger: containerRef.current,
-          start: 'bottom bottom+=100',
-          onEnter: () => setReachedBottom(true),
-        });
-      }
     }, containerRef);
 
-    // Fallback scroll listener
     const handleScroll = () => {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 250) {
         setReachedBottom(true);
@@ -167,7 +159,14 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
       ctx.revert();
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [letter]);
+  }, [currentLetter]);
+
+  // Handler to switch to Creato4 Group Letter and scroll back to top
+  const handleOpenGroupLetter = () => {
+    setCurrentLetter(LETTERS.prince);
+    setReachedBottom(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const setRef = (i: number) => (el: HTMLDivElement | null) => {
     paragraphRefs.current[i] = el;
@@ -185,7 +184,11 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
         paddingBottom: '160px',
       }}
     >
-      <div
+      <motion.div
+        key={currentLetter.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
         className="letter-paper letter-lines paper-texture"
         style={{
           width: '100%',
@@ -213,7 +216,7 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
           Friendship Day, 2026
         </div>
 
-        {/* ── Opening salutation ── */}
+        {/* ── Salutation ── */}
         <div ref={setRef(1)} style={{ marginBottom: '32px' }}>
           <p
             style={{
@@ -225,12 +228,12 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
               lineHeight: 1.5,
             }}
           >
-            {letter.opening}
+            {currentLetter.opening}
           </p>
         </div>
 
-        {/* ── Letter body ── */}
-        {letter.lines.map((line, i) => {
+        {/* ── Letter lines ── */}
+        {currentLetter.lines.map((line, i) => {
           if (line.variant === 'separator') {
             return (
               <div
@@ -263,7 +266,7 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
 
         {/* ── Signature ── */}
         <div
-          ref={setRef(letter.lines.length + 2)}
+          ref={setRef(currentLetter.lines.length + 2)}
           style={{
             marginTop: '64px',
             paddingTop: '36px',
@@ -294,9 +297,9 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
           </p>
         </div>
 
-        {/* ── Floating ending emojis ── */}
+        {/* ── Floating Emojis ── */}
         <div
-          ref={setRef(letter.lines.length + 3)}
+          ref={setRef(currentLetter.lines.length + 3)}
           style={{
             marginTop: '52px',
             display: 'flex',
@@ -319,42 +322,44 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
           ))}
         </div>
 
-        {/* ── P.S. Disclaimer ── */}
-        <div
-          ref={setRef(letter.lines.length + 4)}
-          style={{
-            marginTop: '64px',
-            padding: '24px 28px',
-            background: '#FAF3EC',
-            borderRadius: '12px',
-            border: '1px dashed rgba(184, 107, 40, 0.35)',
-          }}
-        >
-          <p
+        {/* ── P.S. Disclaimer (Only on personal letters) ── */}
+        {currentLetter.id !== 'prince' && (
+          <div
+            ref={setRef(currentLetter.lines.length + 4)}
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(14px, 2.2vw, 17px)',
-              fontWeight: 400,
-              lineHeight: 1.9,
-              color: '#2C1D14',
-              fontStyle: 'italic',
+              marginTop: '64px',
+              padding: '24px 28px',
+              background: '#FAF3EC',
+              borderRadius: '12px',
+              border: '1px dashed rgba(184, 107, 40, 0.35)',
             }}
           >
-            <span style={{ color: '#A65B1A', fontWeight: 600, fontStyle: 'normal' }}>P.S.</span>
-            {' '}Okay, small confession — this was also a tiny experiment. 🙈
-            <br />
-            I was quietly collecting IP addresses to figure out which device belongs to which person.
-            <br />
-            That's honestly why this website exists. You opened it, and now I know it was you. 😄
-            <br /><br />
-            Don't worry — no data was stored anywhere. It was just a fun, nerdy way to say Happy Friendship Day in the most &quot;Prince&quot; way possible. 💻
-          </p>
-        </div>
-      </div>
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontSize: 'clamp(14px, 2.2vw, 17px)',
+                fontWeight: 400,
+                lineHeight: 1.9,
+                color: '#2C1D14',
+                fontStyle: 'italic',
+              }}
+            >
+              <span style={{ color: '#A65B1A', fontWeight: 600, fontStyle: 'normal' }}>P.S.</span>
+              {' '}Okay, small confession — this was also a tiny experiment. 🙈
+              <br />
+              I was quietly collecting IP addresses to figure out which device belongs to which person.
+              <br />
+              That's honestly why this website exists. You opened it, and now I know it was you. 😄
+              <br /><br />
+              Don't worry — no data was stored anywhere. It was just a fun, nerdy way to say Happy Friendship Day in the most &quot;Prince&quot; way possible. 💻
+            </p>
+          </div>
+        )}
+      </motion.div>
 
-      {/* ── POPUP BUTTON FOR CREATO4 GROUP LETTER (Appears on full scroll) ── */}
+      {/* ── FLOATING BUTTON: READ CREATO4 GROUP LETTER (Appears on full scroll for personal letters) ── */}
       <AnimatePresence>
-        {(reachedBottom || letter.id === 'prince') && (
+        {reachedBottom && currentLetter.id !== 'prince' && (
           <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.85 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -369,7 +374,7 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
             }}
           >
             <button
-              onClick={() => setShowGroupModal(true)}
+              onClick={handleOpenGroupLetter}
               className="btn-premium"
               style={{
                 display: 'flex',
@@ -384,108 +389,12 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
                 fontWeight: 600,
               }}
             >
-              <motion.span
-                animate={{ scale: [1, 1.25, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
+              <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }}>
                 ✨
               </motion.span>
               <span>Read Creato4 Group Letter</span>
               <span>💚</span>
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── MODAL: CREATO4 GROUP LETTER ── */}
-      <AnimatePresence>
-        {showGroupModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 9999,
-              background: 'rgba(15, 5, 10, 0.88)',
-              backdropFilter: 'blur(25px)',
-              WebkitBackdropFilter: 'blur(25px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 'clamp(20px, 4vw, 40px)',
-              overflowY: 'auto',
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 30, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 30, opacity: 0 }}
-              transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-              style={{
-                width: '100%',
-                maxWidth: '680px',
-                maxHeight: '90vh',
-                overflowY: 'auto',
-                background: '#FFFDF9',
-                borderRadius: '16px',
-                padding: 'clamp(32px, 5vw, 60px) clamp(24px, 5vw, 48px)',
-                position: 'relative',
-                boxShadow: '0 30px 100px rgba(0,0,0,0.8)',
-                color: '#1C120C',
-              }}
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setShowGroupModal(false)}
-                style={{
-                  position: 'absolute',
-                  top: '20px',
-                  right: '20px',
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  border: '1px solid rgba(184, 107, 40, 0.3)',
-                  background: 'rgba(248, 200, 220, 0.15)',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#1C120C',
-                }}
-              >
-                ✕
-              </button>
-
-              <h2
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: 'clamp(24px, 4vw, 32px)',
-                  fontWeight: 600,
-                  color: '#A65B1A',
-                  marginBottom: '24px',
-                  textAlign: 'center',
-                }}
-              >
-                {groupLetter.opening}
-              </h2>
-
-              {groupLetter.lines.map((line, i) => (
-                <div key={i} style={{ marginBottom: '16px' }}>
-                  <p style={getVariantStyle(line.variant)}>
-                    {renderText(line.text)}
-                  </p>
-                </div>
-              ))}
-
-              <div style={{ marginTop: '36px', textAlign: 'center' }}>
-                <p style={{ fontFamily: "'Dancing Script', cursive", fontSize: '36px', color: '#A65B1A', fontWeight: 700 }}>
-                  Prince 💚
-                </p>
-              </div>
-            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

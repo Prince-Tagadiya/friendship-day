@@ -30,12 +30,14 @@ export default function AdminPanel({
   onToggleTimeMode,
 }: AdminPanelProps) {
   const [open, setOpen] = useState(false);
+  const [activeTimeMode, setActiveTimeMode] = useState<'before-12' | 'unlocked' | 'missed'>('unlocked');
+  const [activeDevice, setActiveDevice] = useState<'laptop' | 'mobile'>('laptop');
 
   return (
     <>
       <motion.button
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.35 }}
+        animate={{ opacity: 0.4 }}
         whileHover={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
         onClick={() => setOpen((o) => !o)}
@@ -45,19 +47,20 @@ export default function AdminPanel({
           bottom: '24px',
           right: '24px',
           zIndex: 9500,
-          width: '40px',
-          height: '40px',
+          width: '44px',
+          height: '44px',
           borderRadius: '50%',
-          background: 'rgba(255,248,242,0.06)',
+          background: 'rgba(26, 10, 20, 0.85)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(248,200,220,0.15)',
+          border: '1px solid rgba(248,200,220,0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          color: 'rgba(248,200,220,0.7)',
-          fontSize: '16px',
+          color: '#F8C8DC',
+          fontSize: '18px',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
         }}
       >
         ⚙️
@@ -72,42 +75,42 @@ export default function AdminPanel({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             style={{
               position: 'fixed',
-              bottom: '76px',
+              bottom: '78px',
               right: '24px',
               zIndex: 9400,
-              width: 'clamp(280px, 88vw, 400px)',
-              background: 'rgba(20, 8, 16, 0.97)',
+              width: 'clamp(300px, 90vw, 420px)',
+              background: 'rgba(18, 6, 14, 0.97)',
               backdropFilter: 'blur(30px)',
               WebkitBackdropFilter: 'blur(30px)',
-              border: '1px solid rgba(248,200,220,0.15)',
-              borderRadius: '16px',
-              padding: '22px',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+              border: '1px solid rgba(248,200,220,0.2)',
+              borderRadius: '20px',
+              padding: '24px',
+              boxShadow: '0 25px 80px rgba(0,0,0,0.7)',
               maxHeight: '85vh',
               overflowY: 'auto',
             }}
           >
             {/* Header */}
-            <div style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid rgba(248,200,220,0.1)' }}>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(212,163,115,0.6)', textTransform: 'uppercase', marginBottom: '3px' }}>
-                Admin Mode
+            <div style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid rgba(248,200,220,0.12)' }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', letterSpacing: '0.2em', color: '#D4A373', textTransform: 'uppercase', marginBottom: '3px' }}>
+                Prince Control Center 👑
               </p>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', color: 'rgba(248,200,220,0.9)' }}>
-                Prince 💚
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', color: '#F8C8DC', fontWeight: 600 }}>
+                Visitor Flow Simulator
               </h2>
             </div>
 
             {/* Detected IP */}
             <div style={{ marginBottom: '18px' }}>
-              <p style={labelStyle}>Detected IP</p>
-              <code style={{ fontSize: '11px', color: 'rgba(212,163,115,0.75)', background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: '6px', display: 'block', wordBreak: 'break-all', fontFamily: 'monospace' }}>
+              <p style={labelStyle}>Your Detected IP</p>
+              <code style={{ fontSize: '11px', color: '#D4A373', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '8px', display: 'block', wordBreak: 'break-all', fontFamily: 'monospace' }}>
                 {detectedIp || '—'}
               </code>
             </div>
 
-            {/* Read Letters */}
+            {/* Read Letters Instantly */}
             <div style={{ marginBottom: '18px' }}>
-              <p style={labelStyle}>Read letters instantly</p>
+              <p style={labelStyle}>Instant Letter Preview</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {LETTER_VISITORS.map((v) => (
                   <button
@@ -122,8 +125,8 @@ export default function AdminPanel({
                       justifyContent: 'space-between',
                       padding: '10px 14px',
                       borderRadius: '10px',
-                      border: '1px solid rgba(248,200,220,0.13)',
-                      background: 'rgba(248,200,220,0.05)',
+                      border: '1px solid rgba(248,200,220,0.15)',
+                      background: 'rgba(248,200,220,0.06)',
                       cursor: 'pointer',
                       width: '100%',
                       textAlign: 'left',
@@ -131,11 +134,11 @@ export default function AdminPanel({
                   >
                     <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontSize: '16px' }}>{v.emoji}</span>
-                      <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '15px', color: 'rgba(255,248,242,0.75)' }}>
+                      <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', color: 'rgba(255,248,242,0.85)' }}>
                         {v.label}&apos;s letter
                       </span>
                     </span>
-                    <span style={{ fontSize: '11px', color: 'rgba(212,163,115,0.6)', fontFamily: 'Inter, sans-serif' }}>
+                    <span style={{ fontSize: '11px', color: '#D4A373', fontFamily: 'Inter, sans-serif' }}>
                       Read →
                     </span>
                   </button>
@@ -143,52 +146,57 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* Time Mode Simulator */}
+            {/* Time Window Simulator */}
             {onToggleTimeMode && (
               <div style={{ marginBottom: '18px' }}>
-                <p style={labelStyle}>Simulate Time Window</p>
+                <p style={labelStyle}>Simulate Time States</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {[
-                    { mode: 'before-12' as const, label: '🔒 Before 12 (Timer Screen)' },
-                    { mode: 'unlocked' as const, label: '✨ 12-1 AM/PM (Unlocked Letter)' },
-                    { mode: 'missed' as const, label: '⏰ After 1 (Missed Secrets)' },
+                    { mode: 'before-12' as const, label: '🔒 Before 12 (Timer + Initial Letter)', desc: 'Shows initial warm letter & countdown' },
+                    { mode: 'unlocked' as const, label: '✨ 12-1 AM/PM (Unlocked Secrets)', desc: 'Opens actual secret personal letter' },
+                    { mode: 'missed' as const, label: '⏰ After 1 (Missed Secrets Screen)', desc: 'Shows "vithdrawal aaj karvai leva nu!"' },
                   ].map((item) => (
                     <button
                       key={item.mode}
-                      onClick={() => onToggleTimeMode(item.mode)}
+                      onClick={() => {
+                        setActiveTimeMode(item.mode);
+                        onToggleTimeMode(item.mode);
+                      }}
                       style={{
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid rgba(248,200,220,0.15)',
-                        background: 'rgba(255,255,255,0.04)',
-                        color: 'rgba(255,248,242,0.7)',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        border: `1px solid ${activeTimeMode === item.mode ? 'rgba(248,200,220,0.5)' : 'rgba(248,200,220,0.14)'}`,
+                        background: activeTimeMode === item.mode ? 'rgba(248,200,220,0.12)' : 'rgba(255,255,255,0.03)',
+                        color: activeTimeMode === item.mode ? '#F8C8DC' : 'rgba(255,248,242,0.7)',
                         fontSize: '12px',
                         cursor: 'pointer',
                         textAlign: 'left',
                         fontFamily: 'Inter, sans-serif',
+                        transition: 'all 0.2s ease',
                       }}
                     >
-                      {item.label}
+                      <div style={{ fontWeight: 600 }}>{item.label}</div>
+                      <div style={{ fontSize: '10px', opacity: 0.6, marginTop: '2px' }}>{item.desc}</div>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Switch visitor */}
+            {/* Switch Visitor */}
             <div style={{ marginBottom: '14px' }}>
-              <p style={labelStyle}>Preview visitor</p>
+              <p style={labelStyle}>Switch Visitor Profile</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
                 {ALL_VISITORS.map((v) => (
                   <button
                     key={v}
                     onClick={() => onSwitchVisitor(v)}
                     style={{
-                      padding: '5px 13px',
+                      padding: '6px 14px',
                       borderRadius: '20px',
-                      border: `1px solid ${currentVisitor === v ? 'rgba(248,200,220,0.45)' : 'rgba(248,200,220,0.12)'}`,
-                      background: currentVisitor === v ? 'rgba(248,200,220,0.1)' : 'transparent',
-                      color: currentVisitor === v ? 'rgba(248,200,220,0.9)' : 'rgba(255,255,255,0.35)',
+                      border: `1px solid ${currentVisitor === v ? 'rgba(248,200,220,0.5)' : 'rgba(248,200,220,0.12)'}`,
+                      background: currentVisitor === v ? 'rgba(248,200,220,0.15)' : 'transparent',
+                      color: currentVisitor === v ? '#F8C8DC' : 'rgba(255,255,255,0.4)',
                       fontSize: '12px',
                       cursor: 'pointer',
                       fontFamily: 'Inter, sans-serif',
@@ -200,20 +208,23 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* Device */}
+            {/* Device Mode */}
             <div style={{ marginBottom: '18px' }}>
-              <p style={labelStyle}>Simulate device</p>
+              <p style={labelStyle}>Simulate Device View</p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 {(['laptop', 'mobile'] as const).map((dt) => (
                   <button
                     key={dt}
-                    onClick={() => onSwitchDevice(dt)}
+                    onClick={() => {
+                      setActiveDevice(dt);
+                      onSwitchDevice(dt);
+                    }}
                     style={{
-                      padding: '6px 16px',
+                      padding: '7px 18px',
                       borderRadius: '20px',
-                      border: '1px solid rgba(248,200,220,0.12)',
-                      background: 'transparent',
-                      color: 'rgba(255,255,255,0.35)',
+                      border: `1px solid ${activeDevice === dt ? 'rgba(248,200,220,0.4)' : 'rgba(248,200,220,0.12)'}`,
+                      background: activeDevice === dt ? 'rgba(248,200,220,0.12)' : 'transparent',
+                      color: activeDevice === dt ? '#F8C8DC' : 'rgba(255,255,255,0.4)',
                       fontSize: '12px',
                       cursor: 'pointer',
                       fontFamily: 'Inter, sans-serif',
@@ -230,11 +241,11 @@ export default function AdminPanel({
               onClick={() => window.location.reload()}
               style={{
                 width: '100%',
-                padding: '9px',
-                borderRadius: '8px',
-                border: '1px solid rgba(248,200,220,0.1)',
-                background: 'transparent',
-                color: 'rgba(255,255,255,0.25)',
+                padding: '10px',
+                borderRadius: '10px',
+                border: '1px solid rgba(248,200,220,0.12)',
+                background: 'rgba(248,200,220,0.04)',
+                color: 'rgba(255,255,255,0.4)',
                 fontSize: '12px',
                 cursor: 'pointer',
                 fontFamily: 'Inter, sans-serif',
@@ -252,7 +263,7 @@ export default function AdminPanel({
 const labelStyle: React.CSSProperties = {
   fontSize: '10px',
   letterSpacing: '0.15em',
-  color: 'rgba(255,255,255,0.25)',
+  color: 'rgba(255,255,255,0.3)',
   marginBottom: '8px',
   textTransform: 'uppercase',
   fontFamily: 'Inter, sans-serif',
