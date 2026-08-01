@@ -25,16 +25,18 @@ class AudioManager {
     const saved = localStorage.getItem('friendship-muted');
     if (saved === 'true') this.muted = true;
 
+    const prefix = window.location.pathname.startsWith('/friendship-day') ? '/friendship-day' : '';
+
     if (!this.calmAudio) {
-      this.calmAudio = new Audio('/audio/calm.mp3');
+      this.calmAudio = new Audio(`${prefix}/audio/calm.mp3`);
       this.calmAudio.loop = true;
       this.calmAudio.volume = this.muted ? 0 : 0.55;
     }
 
     if (!this.upbeatAudio) {
-      this.upbeatAudio = new Audio('/audio/upbeat.mp3');
+      this.upbeatAudio = new Audio(`${prefix}/audio/upbeat.mp3`);
       this.upbeatAudio.loop = true;
-      this.upbeatAudio.volume = 0; // Starts silent
+      this.upbeatAudio.volume = 0;
     }
   }
 
@@ -48,11 +50,12 @@ class AudioManager {
     }
   }
 
-  // ── Switch from Calm BGM to Upbeat Beating Music ──────────────────────
   playUpbeat() {
     this.unlock();
     if (this.currentMode === 'upbeat') return;
     this.currentMode = 'upbeat';
+
+    const prefix = typeof window !== 'undefined' && window.location.pathname.startsWith('/friendship-day') ? '/friendship-day' : '';
 
     if (this.calmAudio) {
       this.calmAudio.pause();
@@ -60,7 +63,7 @@ class AudioManager {
     }
 
     if (!this.upbeatAudio) {
-      this.upbeatAudio = new Audio('/audio/upbeat.mp3');
+      this.upbeatAudio = new Audio(`${prefix}/audio/upbeat.mp3`);
       this.upbeatAudio.loop = true;
     }
 
