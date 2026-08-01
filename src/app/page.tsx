@@ -25,6 +25,7 @@ const SecretTimerScreen = dynamic(() => import('@/components/screens/SecretTimer
 const MissedWindowScreen = dynamic(() => import('@/components/screens/MissedWindowScreen'), { ssr: false });
 const LetterPage = dynamic(() => import('@/components/letter/LetterPage'), { ssr: false });
 const AdminPanel = dynamic(() => import('@/components/admin/AdminPanel'), { ssr: false });
+const AdminWelcomeModal = dynamic(() => import('@/components/admin/AdminWelcomeModal'), { ssr: false });
 
 export default function Home() {
   const { visitor, deviceType, isLoading, detectedIp } = useVisitor();
@@ -35,27 +36,22 @@ export default function Home() {
   const [manualVisitor, setManualVisitor] = useState<VisitorName | null>(null);
   const [manualDevice, setManualDevice] = useState<'laptop' | 'mobile' | null>(null);
   const [overrideTimeMode, setOverrideTimeMode] = useState<'before-12' | 'unlocked' | 'missed' | null>(null);
+  const [showAdminModal, setShowAdminModal] = useState<boolean>(false);
 
   const effectiveVisitor: VisitorName = manualVisitor ?? visitor ?? 'unknown';
   const effectiveDevice = manualDevice ?? deviceType ?? 'unknown-device';
   const visitorData = VISITORS[effectiveVisitor];
   const letter = LETTERS[visitorData.letterId];
 
-  // ── Time window check (12:00 to 1:00 unlock window) ──────
+  // ── Time window check ────────────────
   const getTimeWindowState = useCallback((): 'before-12' | 'unlocked' | 'missed' => {
     if (overrideTimeMode) return overrideTimeMode;
-
     const now = new Date();
     const currentHour = now.getHours();
 
-    // 12:00 AM/PM window check (hour 12)
-    if (currentHour < 12) {
-      return 'before-12';
-    } else if (currentHour === 12) {
-      return 'unlocked'; // 12:00 to 1:00 window!
-    } else {
-      return 'missed'; // After 1:00
-    }
+    if (currentHour < 12) return 'before-12';
+    if (currentHour === 12) return 'unlocked';
+    return 'missed';
   }, [overrideTimeMode]);
 
   // ── Stage resolution helper ──────────────────────────
@@ -63,14 +59,12 @@ export default function Home() {
     (v: VisitorName, dt: string): AppStage => {
       if (v === 'unknown') return 'unknown';
       if (dt === 'mobile') return 'mobile-redirect';
-
-      // Prince (Admin) always sees Hero/Unlocked by default
       if (v === 'Prince') return 'hero';
 
       const timeState = getTimeWindowState();
       if (timeState === 'before-12') return 'secret-timer';
       if (timeState === 'missed') return 'missed-window';
-      return 'hero'; // 'unlocked' state -> Hero -> Letter
+      return 'hero';
     },
     [getTimeWindowState]
   );
@@ -81,6 +75,11 @@ export default function Home() {
     const v = manualVisitor ?? visitor ?? 'unknown';
     const dt = manualDevice ?? deviceType ?? 'unknown-device';
     setStage(resolveStage(v, dt));
+
+    // Show Admin Welcome Selection Modal if logged in as Prince
+    if (v === 'Prince' && !manualVisitor) {
+      setShowAdminModal(true);
+    }
   }, [stage, isLoading, visitor, deviceType, manualVisitor, manualDevice, resolveStage]);
 
   const handleLoadingComplete = useCallback(() => {
@@ -88,6 +87,10 @@ export default function Home() {
     const v = manualVisitor ?? visitor ?? 'unknown';
     const dt = manualDevice ?? deviceType ?? 'unknown-device';
     setStage(resolveStage(v, dt));
+
+    if (v === 'Prince' && !manualVisitor) {
+      setShowAdminModal(true);
+    }
   }, [isLoading, visitor, deviceType, manualVisitor, manualDevice, resolveStage]);
 
   // ── Opening envelope triggers upbeat music ────────────
@@ -163,6 +166,15 @@ export default function Home() {
         {/* Global UI */}
         <CursorGlow />
         <AudioManager />
+
+        {/* Admin Welcome Selection Modal (Shows for Prince on load) */}
+        {isAdminUser && (
+          <AdminWelcomeModal
+            isOpen={showAdminModal}
+            onClose={() => setShowAdminModal(false)}
+            onSelectVisitor={handleAdminSwitch}
+          />
+        )}
 
         {/* "Not me?" button */}
         {showNotMe && (
