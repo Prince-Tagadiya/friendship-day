@@ -9,6 +9,7 @@ interface AdminPanelProps {
   onSwitchVisitor: (name: VisitorName) => void;
   onSwitchDevice: (device: 'laptop' | 'mobile') => void;
   onJumpToLetter: (name: VisitorName) => void;
+  onToggleTimeMode?: (mode: 'before-12' | 'unlocked' | 'missed') => void;
 }
 
 const LETTER_VISITORS: { name: VisitorName; label: string; emoji: string }[] = [
@@ -26,12 +27,12 @@ export default function AdminPanel({
   onSwitchVisitor,
   onSwitchDevice,
   onJumpToLetter,
+  onToggleTimeMode,
 }: AdminPanelProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* Hidden trigger */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.35 }}
@@ -86,45 +87,25 @@ export default function AdminPanel({
               overflowY: 'auto',
             }}
           >
-            {/* ── Header ── */}
+            {/* Header */}
             <div style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid rgba(248,200,220,0.1)' }}>
-              <p style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '10px',
-                letterSpacing: '0.2em',
-                color: 'rgba(212,163,115,0.6)',
-                textTransform: 'uppercase',
-                marginBottom: '3px',
-              }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '10px', letterSpacing: '0.2em', color: 'rgba(212,163,115,0.6)', textTransform: 'uppercase', marginBottom: '3px' }}>
                 Admin Mode
               </p>
-              <h2 style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: '20px',
-                color: 'rgba(248,200,220,0.9)',
-              }}>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '20px', color: 'rgba(248,200,220,0.9)' }}>
                 Prince 💚
               </h2>
             </div>
 
-            {/* ── Detected IP ── */}
+            {/* Detected IP */}
             <div style={{ marginBottom: '18px' }}>
               <p style={labelStyle}>Detected IP</p>
-              <code style={{
-                fontSize: '11px',
-                color: 'rgba(212,163,115,0.75)',
-                background: 'rgba(255,255,255,0.04)',
-                padding: '6px 10px',
-                borderRadius: '6px',
-                display: 'block',
-                wordBreak: 'break-all',
-                fontFamily: 'monospace',
-              }}>
+              <code style={{ fontSize: '11px', color: 'rgba(212,163,115,0.75)', background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: '6px', display: 'block', wordBreak: 'break-all', fontFamily: 'monospace' }}>
                 {detectedIp || '—'}
               </code>
             </div>
 
-            {/* ── Read Letters (jump directly) ── */}
+            {/* Read Letters */}
             <div style={{ marginBottom: '18px' }}>
               <p style={labelStyle}>Read letters instantly</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -144,37 +125,17 @@ export default function AdminPanel({
                       border: '1px solid rgba(248,200,220,0.13)',
                       background: 'rgba(248,200,220,0.05)',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
                       width: '100%',
                       textAlign: 'left',
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.background = 'rgba(248,200,220,0.1)';
-                      el.style.borderColor = 'rgba(248,200,220,0.28)';
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.background = 'rgba(248,200,220,0.05)';
-                      el.style.borderColor = 'rgba(248,200,220,0.13)';
                     }}
                   >
                     <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontSize: '16px' }}>{v.emoji}</span>
-                      <span style={{
-                        fontFamily: "'Cormorant Garamond', serif",
-                        fontSize: '15px',
-                        color: 'rgba(255,248,242,0.75)',
-                        fontWeight: 400,
-                      }}>
+                      <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '15px', color: 'rgba(255,248,242,0.75)' }}>
                         {v.label}&apos;s letter
                       </span>
                     </span>
-                    <span style={{
-                      fontSize: '11px',
-                      color: 'rgba(212,163,115,0.5)',
-                      fontFamily: 'Inter, sans-serif',
-                    }}>
+                    <span style={{ fontSize: '11px', color: 'rgba(212,163,115,0.6)', fontFamily: 'Inter, sans-serif' }}>
                       Read →
                     </span>
                   </button>
@@ -182,12 +143,41 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* ── Divider ── */}
-            <div style={{ height: '1px', background: 'rgba(248,200,220,0.07)', marginBottom: '18px' }} />
+            {/* Time Mode Simulator */}
+            {onToggleTimeMode && (
+              <div style={{ marginBottom: '18px' }}>
+                <p style={labelStyle}>Simulate Time Window</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {[
+                    { mode: 'before-12' as const, label: '🔒 Before 12 (Timer Screen)' },
+                    { mode: 'unlocked' as const, label: '✨ 12-1 AM/PM (Unlocked Letter)' },
+                    { mode: 'missed' as const, label: '⏰ After 1 (Missed Secrets)' },
+                  ].map((item) => (
+                    <button
+                      key={item.mode}
+                      onClick={() => onToggleTimeMode(item.mode)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(248,200,220,0.15)',
+                        background: 'rgba(255,255,255,0.04)',
+                        color: 'rgba(255,248,242,0.7)',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: 'Inter, sans-serif',
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {/* ── Switch visitor (hero flow) ── */}
+            {/* Switch visitor */}
             <div style={{ marginBottom: '14px' }}>
-              <p style={labelStyle}>Preview hero screen as</p>
+              <p style={labelStyle}>Preview visitor</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
                 {ALL_VISITORS.map((v) => (
                   <button
@@ -202,7 +192,6 @@ export default function AdminPanel({
                       fontSize: '12px',
                       cursor: 'pointer',
                       fontFamily: 'Inter, sans-serif',
-                      transition: 'all 0.2s ease',
                     }}
                   >
                     {v}
@@ -211,7 +200,7 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* ── Simulate device ── */}
+            {/* Device */}
             <div style={{ marginBottom: '18px' }}>
               <p style={labelStyle}>Simulate device</p>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -228,17 +217,6 @@ export default function AdminPanel({
                       fontSize: '12px',
                       cursor: 'pointer',
                       fontFamily: 'Inter, sans-serif',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.borderColor = 'rgba(248,200,220,0.3)';
-                      el.style.color = 'rgba(255,255,255,0.6)';
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.borderColor = 'rgba(248,200,220,0.12)';
-                      el.style.color = 'rgba(255,255,255,0.35)';
                     }}
                   >
                     {dt === 'laptop' ? '🖥️ Laptop' : '📱 Mobile'}
@@ -247,7 +225,7 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* ── Reset ── */}
+            {/* Reset */}
             <button
               onClick={() => window.location.reload()}
               style={{
@@ -260,14 +238,6 @@ export default function AdminPanel({
                 fontSize: '12px',
                 cursor: 'pointer',
                 fontFamily: 'Inter, sans-serif',
-                letterSpacing: '0.05em',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.45)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.25)';
               }}
             >
               ↺ Reset & Reload

@@ -18,12 +18,10 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
   useEffect(() => {
     function calculateTime() {
       const now = new Date();
-      // Target: Today or next 12:00 PM
       const target = new Date();
       target.setHours(12, 0, 0, 0);
 
       if (now.getTime() > target.getTime()) {
-        // If past 12:00 PM today, set target to tomorrow 12:00 PM or unlocked
         target.setDate(target.getDate() + 1);
       }
 
@@ -41,190 +39,125 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1.2, ease: 'easeOut' }}
+    <div
       style={{
-        position: 'fixed',
-        inset: 0,
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'clamp(20px, 5vw, 40px)',
+        padding: 'clamp(40px, 6vh, 80px) clamp(16px, 4vw, 40px)',
         zIndex: 200,
-        textAlign: 'center',
+        position: 'relative',
       }}
     >
-      {/* Red ambient warning glow */}
-      <div
-        aria-hidden="true"
+      {/* Container */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: 'easeOut' }}
         style={{
-          position: 'absolute',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(192, 57, 43, 0.12) 0%, transparent 70%)',
-          filter: 'blur(70px)',
-          pointerEvents: 'none',
-          animation: 'envelopeBreathe 4s ease-in-out infinite',
-        }}
-      />
-
-      <div
-        className="glass-card"
-        style={{
-          maxWidth: '540px',
           width: '100%',
-          padding: 'clamp(32px, 6vw, 56px) clamp(24px, 5vw, 44px)',
-          borderRadius: '24px',
-          border: '1px solid rgba(248, 200, 220, 0.2)',
-          boxShadow: '0 20px 80px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(192, 57, 43, 0.15)',
+          maxWidth: '660px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '32px',
         }}
       >
-        {/* Skull / Eye emoji */}
-        <motion.div
-          animate={{ scale: [1, 1.1, 1], rotate: [0, -3, 3, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ fontSize: '56px', marginBottom: '20px' }}
-        >
-          👁️‍🗨️ {emoji}
-        </motion.div>
-
-        {/* Intelligence message */}
-        <h1
-          style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontSize: 'clamp(24px, 5vw, 34px)',
-            fontWeight: 500,
-            color: '#F8C8DC',
-            marginBottom: '8px',
-          }}
-        >
-          I know this is {visitorName}&apos;s device... 🤫
-        </h1>
-
-        <p
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '13px',
-            letterSpacing: '0.1em',
-            color: 'rgba(212, 163, 115, 0.85)',
-            textTransform: 'uppercase',
-            marginBottom: '20px',
-          }}
-        >
-          This is just Prince intelligence.
-        </p>
-
-        {/* Exact Gujarati Quote */}
+        {/* ── Initial Warm Letter From Prince's Heart ── */}
         <div
+          className="letter-paper paper-texture"
           style={{
-            background: 'rgba(192, 57, 43, 0.12)',
-            border: '1px solid rgba(192, 57, 43, 0.35)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            marginBottom: '28px',
+            padding: 'clamp(32px, 5vw, 60px) clamp(24px, 5vw, 48px)',
+            borderRadius: '16px',
+            background: '#FFFDF9',
+            boxShadow: '0 25px 90px rgba(0,0,0,0.6)',
+            color: '#1C120C',
           }}
         >
-          <p
-            style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              fontWeight: 600,
-              fontStyle: 'italic',
-              color: '#FFB3BA',
-              letterSpacing: '0.02em',
-            }}
-          >
-            &quot;mane khbr ajj che kon shu kare che&quot; 😈
+          <div style={{ textAlign: 'right', fontFamily: "'Dancing Script', cursive", color: '#5A4030', marginBottom: '24px' }}>
+            Friendship Day 🌸
+          </div>
+
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(22px, 4vw, 28px)', color: '#A65B1A', fontStyle: 'italic', marginBottom: '18px' }}>
+            Dear {visitorName}, {emoji}
+          </h2>
+
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(17px, 2.8vw, 21px)', lineHeight: 1.85, color: '#1C120C', marginBottom: '16px' }}>
+            First of all, Happy Friendship Day! 💖
           </p>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(17px, 2.8vw, 21px)', lineHeight: 1.85, color: '#1C120C', marginBottom: '16px' }}>
+            I wrote this letter directly from my heart to thank you for being such an awesome part of my life and Creato4. Working, building, and celebrating together has been truly special.
+          </p>
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(17px, 2.8vw, 21px)', lineHeight: 1.85, color: '#964B00', fontWeight: 600 }}>
+            But wait... your actual secret letter and personal memories unlock at 12:00 PM! 🤫👇
+          </p>
+
+          <div style={{ marginTop: '32px', textAlign: 'right', fontFamily: "'Dancing Script', cursive", fontSize: '28px', color: '#A65B1A', fontWeight: 700 }}>
+            With love, Prince 💚
+          </div>
         </div>
 
-        {/* Mysterious Warning */}
-        <p
-          style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontSize: 'clamp(16px, 3.5vw, 20px)',
-            fontWeight: 300,
-            color: 'rgba(255, 248, 242, 0.85)',
-            lineHeight: 1.6,
-            marginBottom: '28px',
-          }}
-        >
-          🔒 All personal secrets revealing on 12:00 PM Friendship Day Special...
-        </p>
-
-        {/* Live Countdown Clock */}
+        {/* ── 12:00 PM Secret Timer & Prince Intelligence Card ── */}
         <div
+          className="glass-card"
           style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '14px',
-            marginBottom: '24px',
+            padding: 'clamp(32px, 5vw, 48px) clamp(20px, 4vw, 36px)',
+            borderRadius: '20px',
+            border: '1px solid rgba(248, 200, 220, 0.25)',
+            textAlign: 'center',
+            boxShadow: '0 20px 80px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(192, 57, 43, 0.15)',
           }}
         >
-          {[
-            { label: 'HOURS', val: timeLeft.hours },
-            { label: 'MINS', val: timeLeft.minutes },
-            { label: 'SECS', val: timeLeft.seconds },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                background: 'rgba(26, 10, 20, 0.8)',
-                border: '1px solid rgba(248, 200, 220, 0.2)',
-                borderRadius: '12px',
-                padding: '12px 18px',
-                minWidth: '76px',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontSize: '28px',
-                  fontWeight: 600,
-                  color: '#D4A373',
-                  lineHeight: 1.1,
-                }}
-              >
-                {String(item.val).padStart(2, '0')}
-              </div>
-              <div
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: '9px',
-                  letterSpacing: '0.15em',
-                  color: 'rgba(255, 255, 255, 0.4)',
-                  marginTop: '4px',
-                }}
-              >
-                {item.label}
-              </div>
-            </div>
-          ))}
-        </div>
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>👁️‍🗨️</div>
 
-        {/* Optional Bypass / Unlocked notification */}
-        {onBypass && (
-          <button
-            onClick={onBypass}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'rgba(248, 200, 220, 0.4)',
-              fontSize: '11px',
-              fontFamily: 'Inter, sans-serif',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              marginTop: '8px',
-            }}
-          >
-            (Prince Admin: Unlock Now)
-          </button>
-        )}
-      </div>
-    </motion.div>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(22px, 4.5vw, 30px)', color: '#F8C8DC', marginBottom: '6px' }}>
+            I know this is {visitorName}&apos;s device... 🤫
+          </h3>
+
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', letterSpacing: '0.12em', color: 'rgba(212, 163, 115, 0.85)', textTransform: 'uppercase', marginBottom: '18px' }}>
+            This is just Prince intelligence.
+          </p>
+
+          {/* Exact Gujarati Quote */}
+          <div style={{ background: 'rgba(192, 57, 43, 0.14)', border: '1px solid rgba(192, 57, 43, 0.4)', borderRadius: '12px', padding: '14px 20px', marginBottom: '24px' }}>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(18px, 3.8vw, 24px)', fontWeight: 600, fontStyle: 'italic', color: '#FFB3BA' }}>
+              &quot;mane khbr ajj che kon shu kare che&quot; 😈
+            </p>
+          </div>
+
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(15px, 3vw, 19px)', color: 'rgba(255, 248, 242, 0.85)', marginBottom: '24px' }}>
+            🔒 All personal secrets revealing on 12:00 PM Friendship Day Special...
+          </p>
+
+          {/* Countdown Clock */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
+            {[
+              { label: 'HOURS', val: timeLeft.hours },
+              { label: 'MINS', val: timeLeft.minutes },
+              { label: 'SECS', val: timeLeft.seconds },
+            ].map((item, idx) => (
+              <div key={idx} style={{ background: 'rgba(26, 10, 20, 0.85)', border: '1px solid rgba(248, 200, 220, 0.25)', borderRadius: '12px', padding: '10px 16px', minWidth: '70px' }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 600, color: '#D4A373', lineHeight: 1.1 }}>
+                  {String(item.val).padStart(2, '0')}
+                </div>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '9px', letterSpacing: '0.15em', color: 'rgba(255, 255, 255, 0.4)', marginTop: '3px' }}>
+                  {item.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {onBypass && (
+            <button
+              onClick={onBypass}
+              style={{ background: 'transparent', border: 'none', color: 'rgba(248, 200, 220, 0.4)', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              (Prince Admin: Unlock Now)
+            </button>
+          )}
+        </div>
+      </motion.div>
+    </div>
   );
 }

@@ -8,7 +8,8 @@ export type AppStage =
   | 'letter'
   | 'unknown'
   | 'mobile-redirect'
-  | 'secret-timer';
+  | 'secret-timer'
+  | 'missed-window';
 
 export interface Visitor {
   name: VisitorName;

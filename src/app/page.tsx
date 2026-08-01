@@ -22,6 +22,7 @@ const HeroScreen = dynamic(() => import('@/components/screens/HeroScreen'), { ss
 const UnknownVisitor = dynamic(() => import('@/components/screens/UnknownVisitor'), { ssr: false });
 const MobileRedirectScreen = dynamic(() => import('@/components/screens/MobileRedirectScreen'), { ssr: false });
 const SecretTimerScreen = dynamic(() => import('@/components/screens/SecretTimerScreen'), { ssr: false });
+const MissedWindowScreen = dynamic(() => import('@/components/screens/MissedWindowScreen'), { ssr: false });
 const LetterPage = dynamic(() => import('@/components/letter/LetterPage'), { ssr: false });
 const AdminPanel = dynamic(() => import('@/components/admin/AdminPanel'), { ssr: false });
 
@@ -30,26 +31,32 @@ export default function Home() {
   const { isVeryLowEnd, isLowEnd } = useFPSMonitor();
   const [stage, setStage] = useState<AppStage>('loading');
 
-  // Manual identity & device override
+  // Manual identity, device, and time mode overrides
   const [manualVisitor, setManualVisitor] = useState<VisitorName | null>(null);
   const [manualDevice, setManualDevice] = useState<'laptop' | 'mobile' | null>(null);
-  const [forceTimer, setForceTimer] = useState<boolean>(false);
+  const [overrideTimeMode, setOverrideTimeMode] = useState<'before-12' | 'unlocked' | 'missed' | null>(null);
 
   const effectiveVisitor: VisitorName = manualVisitor ?? visitor ?? 'unknown';
   const effectiveDevice = manualDevice ?? deviceType ?? 'unknown-device';
   const visitorData = VISITORS[effectiveVisitor];
   const letter = LETTERS[visitorData.letterId];
 
-  // ── Helper: Check if before 12:00 PM Friendship Day timer ──
-  const isBefore12PM = useCallback(() => {
-    if (forceTimer) return true; // Forced via admin
+  // ── Time window check (12:00 to 1:00 unlock window) ──────
+  const getTimeWindowState = useCallback((): 'before-12' | 'unlocked' | 'missed' => {
+    if (overrideTimeMode) return overrideTimeMode;
+
     const now = new Date();
-    // 12:00 PM target
-    const target = new Date();
-    target.setHours(12, 0, 0, 0);
-    // If visitor is not Prince and current time is before 12:00 PM today
-    return now.getHours() < 12;
-  }, [forceTimer]);
+    const currentHour = now.getHours();
+
+    // 12:00 AM/PM window check (hour 12)
+    if (currentHour < 12) {
+      return 'before-12';
+    } else if (currentHour === 12) {
+      return 'unlocked'; // 12:00 to 1:00 window!
+    } else {
+      return 'missed'; // After 1:00
+    }
+  }, [overrideTimeMode]);
 
   // ── Stage resolution helper ──────────────────────────
   const resolveStage = useCallback(
@@ -57,14 +64,15 @@ export default function Home() {
       if (v === 'unknown') return 'unknown';
       if (dt === 'mobile') return 'mobile-redirect';
 
-      // If before 12:00 PM and not Prince, show secret timer
-      if (v !== 'Prince' && isBefore12PM()) {
-        return 'secret-timer';
-      }
+      // Prince (Admin) always sees Hero/Unlocked by default
+      if (v === 'Prince') return 'hero';
 
-      return 'hero';
+      const timeState = getTimeWindowState();
+      if (timeState === 'before-12') return 'secret-timer';
+      if (timeState === 'missed') return 'missed-window';
+      return 'hero'; // 'unlocked' state -> Hero -> Letter
     },
-    [isBefore12PM]
+    [getTimeWindowState]
   );
 
   // ── Detect → set stage after loading ────────────────
@@ -85,7 +93,6 @@ export default function Home() {
   // ── Opening envelope triggers upbeat music ────────────
   const handleOpenEnvelope = useCallback(() => {
     setStage('opening');
-    // Start beating upbeat music!
     audioManager.play('upbeat');
     setTimeout(() => setStage('letter'), 2000);
   }, []);
@@ -95,15 +102,9 @@ export default function Home() {
     (name: VisitorName) => {
       setManualVisitor(name);
       setManualDevice('laptop');
-      if (name === 'unknown') {
-        setStage('unknown');
-      } else if (name !== 'Prince' && isBefore12PM()) {
-        setStage('secret-timer');
-      } else {
-        setStage('hero');
-      }
+      setStage(resolveStage(name, 'laptop'));
     },
-    [isBefore12PM]
+    [resolveStage]
   );
 
   // ── Admin controls ───────────────────────────────────
@@ -111,11 +112,9 @@ export default function Home() {
     (name: VisitorName) => {
       setManualVisitor(name);
       setManualDevice('laptop');
-      if (name === 'unknown') setStage('unknown');
-      else if (name !== 'Prince' && isBefore12PM()) setStage('secret-timer');
-      else setStage('hero');
+      setStage(resolveStage(name, 'laptop'));
     },
-    [isBefore12PM]
+    [resolveStage]
   );
 
   const handleAdminDeviceSwitch = useCallback(
@@ -130,15 +129,25 @@ export default function Home() {
   const handleJumpToLetter = useCallback((name: VisitorName) => {
     setManualVisitor(name);
     setManualDevice('laptop');
-    audioManager.play('upbeat'); // Upbeat music on direct letter jump
+    audioManager.play('upbeat');
     setStage('letter');
   }, []);
+
+  const handleAdminToggleTimeMode = useCallback(
+    (mode: 'before-12' | 'unlocked' | 'missed') => {
+      setOverrideTimeMode(mode);
+      if (mode === 'before-12') setStage('secret-timer');
+      else if (mode === 'missed') setStage('missed-window');
+      else setStage('hero');
+    },
+    []
+  );
 
   const particleCount = isVeryLowEnd ? 0 : isLowEnd ? 150 : 400;
   const isAdminUser = visitorData.isAdmin;
 
   const showNotMe =
-    (stage === 'hero' || stage === 'letter' || stage === 'mobile-redirect' || stage === 'secret-timer') &&
+    (stage === 'hero' || stage === 'letter' || stage === 'mobile-redirect' || stage === 'secret-timer' || stage === 'missed-window') &&
     effectiveVisitor !== 'unknown';
 
   return (
@@ -171,6 +180,7 @@ export default function Home() {
             onSwitchVisitor={handleAdminSwitch}
             onSwitchDevice={handleAdminDeviceSwitch}
             onJumpToLetter={handleJumpToLetter}
+            onToggleTimeMode={handleAdminToggleTimeMode}
           />
         )}
 
@@ -207,6 +217,22 @@ export default function Home() {
                 visitorName={visitorData.greeting}
                 emoji={visitorData.emoji}
                 onBypass={() => setStage('hero')}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── MISSED WINDOW SCREEN (After 1:00) ── */}
+        <AnimatePresence mode="wait">
+          {stage === 'missed-window' && (
+            <motion.div key="missed-window">
+              <MissedWindowScreen
+                visitorName={visitorData.greeting}
+                emoji={visitorData.emoji}
+                onReadCommonLetter={() => {
+                  audioManager.play('upbeat');
+                  setStage('letter');
+                }}
               />
             </motion.div>
           )}
