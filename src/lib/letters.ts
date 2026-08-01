@@ -21,7 +21,7 @@ const RAW_LETTERS: Record<string, LetterContent> = {
     lines: [
       { text: '**Happy Friendship Day, Khushi! 🌸💖**', variant: 'center-bold' },
       { text: 'Some people come into your life quietly, but slowly become a very important part of it.', variant: 'normal', topSpacing: true },
-      { text: 'You\'re one of those people, tuhinji presence always brings positivity, muhinji khas dost. 🤍✨', variant: 'highlight' },
+      { text: 'You\'re one of those people... tuhinji presence always brings positivity and warmth. 🤍✨', variant: 'highlight' },
       { text: 'Thank you for being such an important part of Creato4. Every project, every meeting, every discussion, every competition, and every small success became more special because we worked on it together.', variant: 'normal', topSpacing: true },
       { text: 'I really admire how kind, patient, and genuine you are. No matter how busy things get, you always try to give your best. 🌼✨', variant: 'normal' },
       { text: 'Thank you for trusting our ideas, supporting the team, and believing in Creato4 from the beginning. That means a lot to me. 💚', variant: 'highlight', topSpacing: true },
