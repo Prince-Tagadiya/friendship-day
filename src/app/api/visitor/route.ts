@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVisitorFromIP } from '@/lib/visitors';
 
+export const dynamic = 'force-static';
+
 export async function GET(request: NextRequest) {
   // Extract real IP — supports Vercel, Cloudflare, nginx, local
   const cfIp = request.headers.get('cf-connecting-ip');

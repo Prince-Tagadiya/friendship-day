@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import type { VisitorName, DeviceType } from '@/types';
+import { getVisitorFromIP } from '@/lib/visitors';
 
 interface UseVisitorReturn {
   visitor: VisitorName | null;
@@ -23,11 +24,32 @@ export function useVisitor(): UseVisitorReturn {
   useEffect(() => {
     async function detect() {
       try {
+        // 1. Try server API route
         const res = await fetch('/api/visitor', { cache: 'no-store' });
-        const data = await res.json();
-        setVisitor(data.visitor as VisitorName);
-        setDeviceType(data.deviceType as DeviceType);
-        if (data.detectedIp) setDetectedIp(data.detectedIp);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.visitor) {
+            setVisitor(data.visitor as VisitorName);
+            setDeviceType(data.deviceType as DeviceType);
+            if (data.detectedIp) setDetectedIp(data.detectedIp);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch {
+        // API route failed or static export
+      }
+
+      // 2. Fallback for GitHub Pages static export: fetch public IP client-side
+      try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        const clientIp = ipData.ip;
+        const result = getVisitorFromIP(clientIp);
+
+        setVisitor(result.visitor);
+        setDeviceType(result.deviceType);
+        if (result.visitor === 'Prince') setDetectedIp(clientIp);
       } catch {
         setVisitor('unknown');
         setDeviceType('unknown-device');
