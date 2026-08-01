@@ -15,7 +15,7 @@ interface AdminPanelProps {
 const LETTER_VISITORS: { name: VisitorName; label: string; emoji: string }[] = [
   { name: 'Khushi', label: 'Khushi', emoji: '🌸' },
   { name: 'Nisarg', label: 'Nisarg', emoji: '⚙️' },
-  { name: 'Rudra',  label: 'Rudra',  emoji: '💻' },
+  { name: 'Rudra', label: 'Rudra', emoji: '💻' },
   { name: 'Prince', label: 'Creato4', emoji: '💚' },
 ];
 
@@ -154,7 +154,7 @@ export default function AdminPanel({
                   {[
                     { mode: 'before-12' as const, label: '🔒 Before 12 (Timer + Initial Letter)', desc: 'Shows initial warm letter & countdown' },
                     { mode: 'unlocked' as const, label: '✨ 12-1 AM/PM (Unlocked Secrets)', desc: 'Opens actual secret personal letter' },
-                    { mode: 'missed' as const, label: '⏰ After 1 (Missed Secrets Screen)', desc: 'Shows "vithdrawal aaj karvai leva nu!"' },
+                    { mode: 'missed' as const, label: '⏰ After 1 (Missed Secrets Screen)', desc: 'Shows "Withdrawal aaj karvai leva nu!"' },
                   ].map((item) => (
                     <button
                       key={item.mode}

@@ -106,7 +106,7 @@ export default function MissedWindowScreen({
               letterSpacing: '0.02em',
             }}
           >
-            &quot;vithdrawal aaj karvai leva nu!&quot; 💸😂
+            &quot;Withdrawal aaj karvai leva nu!&quot; 💸😂
           </p>
         </div>
 
