@@ -2,10 +2,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { VisitorName } from '@/types';
+import type { VisitLogEntry } from '@/hooks/useVisitor';
 
 interface AdminPanelProps {
   detectedIp?: string;
   currentVisitor: VisitorName;
+  visitLogs?: VisitLogEntry[];
   onSwitchVisitor: (name: VisitorName) => void;
   onSwitchDevice: (device: 'laptop' | 'mobile') => void;
   onJumpToLetter: (name: VisitorName) => void;
@@ -15,7 +17,7 @@ interface AdminPanelProps {
 const LETTER_VISITORS: { name: VisitorName; label: string; emoji: string }[] = [
   { name: 'Khushi', label: 'Khushi', emoji: '🌸' },
   { name: 'Nisarg', label: 'Nisarg', emoji: '⚙️' },
-  { name: 'Rudra', label: 'Rudra', emoji: '💻' },
+  { name: 'Rudra',  label: 'Rudra',  emoji: '💻' },
   { name: 'Prince', label: 'Creato4', emoji: '💚' },
 ];
 
@@ -24,6 +26,7 @@ const ALL_VISITORS: VisitorName[] = ['Khushi', 'Nisarg', 'Rudra', 'Prince', 'unk
 export default function AdminPanel({
   detectedIp,
   currentVisitor,
+  visitLogs = [],
   onSwitchVisitor,
   onSwitchDevice,
   onJumpToLetter,
@@ -106,6 +109,36 @@ export default function AdminPanel({
               <code style={{ fontSize: '11px', color: '#D4A373', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '8px', display: 'block', wordBreak: 'break-all', fontFamily: 'monospace' }}>
                 {detectedIp || '—'}
               </code>
+            </div>
+
+            {/* 📋 VISITOR ACTIVITY LOG */}
+            <div style={{ marginBottom: '20px' }}>
+              <p style={labelStyle}>📋 Visitor Activity Log</p>
+              <div style={{ maxHeight: '160px', overflowY: 'auto', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(248,200,220,0.12)', borderRadius: '10px', padding: '10px 12px' }}>
+                {visitLogs.length === 0 ? (
+                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
+                    No visits recorded yet.
+                  </p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {visitLogs.map((log) => (
+                      <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '6px' }}>
+                        <div>
+                          <span style={{ fontSize: '12px', color: '#F8C8DC', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+                            {log.name}
+                          </span>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+                            {log.ip || '—'} ({log.device})
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '10px', color: '#D4A373', fontFamily: 'Inter, sans-serif' }}>
+                          {log.timestamp}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Read Letters Instantly */}

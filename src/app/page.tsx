@@ -28,7 +28,7 @@ const AdminPanel = dynamic(() => import('@/components/admin/AdminPanel'), { ssr:
 const AdminWelcomeModal = dynamic(() => import('@/components/admin/AdminWelcomeModal'), { ssr: false });
 
 export default function Home() {
-  const { visitor, deviceType, isLoading, detectedIp } = useVisitor();
+  const { visitor, deviceType, isLoading, detectedIp, visitLogs } = useVisitor();
   const { isVeryLowEnd, isLowEnd } = useFPSMonitor();
   const [stage, setStage] = useState<AppStage>('loading');
 
@@ -194,6 +194,7 @@ export default function Home() {
           <AdminPanel
             detectedIp={detectedIp}
             currentVisitor={effectiveVisitor}
+            visitLogs={visitLogs}
             onSwitchVisitor={handleAdminSwitch}
             onSwitchDevice={handleAdminDeviceSwitch}
             onJumpToLetter={handleJumpToLetter}
