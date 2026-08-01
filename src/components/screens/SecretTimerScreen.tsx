@@ -76,7 +76,7 @@ export default function SecretTimerScreen({ visitorName, emoji, onBypass }: Secr
           }}
         >
           <div style={{ textAlign: 'right', fontFamily: "'Dancing Script', cursive", color: '#5A4030', marginBottom: '24px' }}>
-            Friendship Day 🌸
+            Friendship Day, 2026 🌸
           </div>
 
           <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(22px, 4vw, 28px)', color: '#A65B1A', fontStyle: 'italic', marginBottom: '18px' }}>

@@ -210,7 +210,7 @@ export default function LetterPage({ letter, visitorName }: LetterPageProps) {
             fontWeight: 600,
           }}
         >
-          Friendship Day, 2025
+          Friendship Day, 2026
         </div>
 
         {/* ── Opening salutation ── */}
